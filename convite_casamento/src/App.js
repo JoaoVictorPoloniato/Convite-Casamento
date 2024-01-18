@@ -32,11 +32,9 @@ const App = () => {
   };
 
   const handleConfirmarPresenca = () => {
-    // Lógica para enviar os nomes confirmados, por exemplo, para um servidor
     console.log('Nomes Confirmados:', nomesConfirmados);
-    alert('Presença confirmada!');
+    alert('Que legal, esperamos vocês la, e muito importante para nós');
 
-    // Limpar os estados e recarregar a página
     setNovoNome('');
     setNomesConfirmados([]);
     window.location.reload();
