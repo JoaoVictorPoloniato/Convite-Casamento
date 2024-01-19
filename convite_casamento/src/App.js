@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QrCode from 'qrcode.react';
 import './App.css';
+import { adicionarNomeAoBancoDeDados, obterNomesDoBancoDeDados, confirmarPresencaNoBancoDeDados } from './Conector';
 
 const App = () => {
   const nomeCasal = 'Kaila e João';
@@ -24,21 +25,46 @@ const App = () => {
     }, 3000);
   };
 
-  const handleAdicionarNome = () => {
+  const handleAdicionarNome = async () => {
     if (novoNome.trim() !== '') {
-      setNomesConfirmados([...nomesConfirmados, novoNome]);
-      setNovoNome('');
+      try {
+        await adicionarNomeAoBancoDeDados(novoNome);
+        const nomesAtualizados = await obterNomesDoBancoDeDados();
+        setNomesConfirmados(nomesAtualizados);
+        setNovoNome('');
+      } catch (error) {
+        console.error('Erro ao adicionar nome:', error);
+      }
     }
   };
 
-  const handleConfirmarPresenca = () => {
+  const handleConfirmarPresenca = async () => {
     console.log('Nomes Confirmados:', nomesConfirmados);
-    alert('Que legal, esperamos vocês la, e muito importante para nós');
 
-    setNovoNome('');
-    setNomesConfirmados([]);
-    window.location.reload();
+    try {
+      await confirmarPresencaNoBancoDeDados(nomesConfirmados);
+      alert('Que legal, esperamos vocês lá, é muito importante para nós');
+
+      setNovoNome('');
+      setNomesConfirmados([]);
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao confirmar presença:', error);
+    }
   };
+
+  useEffect(() => {
+    const fetchNomesDoBanco = async () => {
+      try {
+        const nomesDoBanco = await obterNomesDoBancoDeDados();
+        setNomesConfirmados(nomesDoBanco);
+      } catch (error) {
+        console.error('Erro ao obter nomes do banco de dados:', error);
+      }
+    };
+
+    fetchNomesDoBanco();
+  }, []); // Executa uma vez no carregamento inicial
 
   return (
     <div className="convite">
