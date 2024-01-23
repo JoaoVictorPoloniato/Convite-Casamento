@@ -53,18 +53,18 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchNomesDoBanco = async () => {
-      try {
-        const nomesDoBanco = await obterNomesDoBancoDeDados();
-        setNomesConfirmados(nomesDoBanco);
-      } catch (error) {
-        console.error('Erro ao obter nomes do banco de dados:', error);
-      }
-    };
+  const fetchNomesDoBanco = async () => {
+    try {
+      const nomesDoBanco = await obterNomesDoBancoDeDados();
+      setNomesConfirmados(nomesDoBanco);
+    } catch (error){
+      console.error('Erro ao obter nomes do banco de dados:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchNomesDoBanco();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     socket.on('atualizarNomes', () => {
@@ -86,6 +86,11 @@ const App = () => {
       <div className="qr-code">
         <QrCode value={pixPayLoad} />
         <p>Qr Code para presentes via PIX</p>
+      </div>
+
+      <div className="lista-presentes">
+        <p>Caso queira, pode estar realizando um pix a nos tambem.</p>
+        <p>Segue o link da lista de presentes <a href="https://lista.havan.com.br/ListaPresenteAdmin">aqui</a></p>
       </div>
       <div className="chave-pix">
         <p>Chave PIX: {chavePix}</p>
