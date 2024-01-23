@@ -59,28 +59,35 @@ app.get('/obterNomes', async (req, res) => {
   }
 });
 
-app.post('/confirmarPresenca', async (req, res) => {
-  const nomesConfirmados = req.body.nomes;
+app.post('/adicionarNome', async (req, res) => {
+  const novoNome = req.body.nome;
 
-  if (nomesConfirmados && nomesConfirmados.length > 0) {
+  if (novoNome) {
     try {
-      await connection.execute('CREATE TABLE IF NOT EXISTS presencas (nome VARCHAR(255))');
-      for (const nome of nomesConfirmados) {
-        await connection.execute('INSERT INTO presencas (nome) VALUES (?)', [nome]);
-      }
+      // Verificar se a tabela participantes existe, senão criar
+      await connection.execute(`
+        CREATE TABLE IF NOT EXISTS participantes (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          nome VARCHAR(255)
+        )
+      `);
 
-      res.status(200).json({ mensagem: 'Presença confirmada com sucesso' });
-      
+      // Inserir o novo nome na tabela participantes
+      await connection.execute('INSERT INTO participantes (nome) VALUES (?)', [novoNome]);
+
+      res.status(200).json({ mensagem: 'Nome adicionado com sucesso' });
+
       // Emitir evento para atualizar clientes
       io.emit('atualizarNomes');
     } catch (error) {
-      console.error('Erro ao confirmar presença no banco de dados:', error);
-      res.status(500).json({ erro: 'Erro ao confirmar presença no banco de dados' });
+      console.error('Erro ao adicionar nome ao banco de dados:', error);
+      res.status(500).json({ erro: 'Erro ao adicionar nome ao banco de dados' });
     }
   } else {
-    res.status(400).json({ erro: 'O corpo da requisição deve incluir nomes para confirmar a presença' });
+    res.status(400).json({ erro: 'O corpo da requisição deve incluir um nome' });
   }
 });
+
 
 server.listen(port, () => {
   console.log(`Servidor está ouvindo na porta ${port}`);
