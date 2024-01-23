@@ -34,7 +34,17 @@ app.post('/adicionarNome', async (req, res) => {
 
   if (novoNome) {
     try {
-      await connection.execute('INSERT INTO nomes (nome) VALUES (?)', [novoNome]);
+      // Verificar se a tabela participantes existe, senão criar
+      await connection.execute(`
+        CREATE TABLE IF NOT EXISTS participantes (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          nome VARCHAR(255)
+        )
+      `);
+
+      // Inserir o novo nome na tabela participantes
+      await connection.execute('INSERT INTO participantes (nome) VALUES (?)', [novoNome]);
+
       res.status(200).json({ mensagem: 'Nome adicionado com sucesso' });
 
       // Emitir evento para atualizar clientes
@@ -80,12 +90,14 @@ app.post('/adicionarNome', async (req, res) => {
       // Emitir evento para atualizar clientes
       io.emit('atualizarNomes');
     } catch (error) {
-      console.error('Erro ao adicionar nome ao banco de dados:', error);
-      res.status(500).json({ erro: 'Erro ao adicionar nome ao banco de dados' });
+      console.error('Erro no servidor:', error);
+      res.status(500).json({ erro: 'Erro interno do servidor' });
     }
   } else {
     res.status(400).json({ erro: 'O corpo da requisição deve incluir um nome' });
   }
+
+  
 });
 
 
